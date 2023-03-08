@@ -127,10 +127,10 @@ end; // delimiter ;
 drop procedure account_transaction;
 
 delimiter //
-create trigger `acclunt_BEFORE_UPDATE`
+create trigger `account_BEFORE_UPDATE`
 before update on `account` for each row 
 begin
 	if (new.amount < 0) 
     then signal sqlstate '45000';
     end if;
-end; delimiter ;
+end; // delimiter ;
