@@ -153,7 +153,7 @@ public class DBConTest {
 
 			}
 
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			System.out.println("DB 연결 오류");
 			e.printStackTrace();
 		}
