@@ -1,4 +1,4 @@
-package sqlconnection;
+package JDBCProject;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,22 +7,26 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-public class DBConTest {
+import com.mysql.cj.protocol.x.SyncFlushDeflaterOutputStream;
+
+public class DBConnection {
 
 	static Connection conn = null;
 	static PreparedStatement psmt = null;
 	static ResultSet rs = null;
-
+	
 	public static void create(Connection conn) {
 		try {
 			Scanner sc1 = new Scanner(System.in);
 			Scanner sc2 = new Scanner(System.in);
 			Scanner sc3 = new Scanner(System.in);
-			String query = "insert into user (id, name, email) values (?,?,?)";
-			psmt = conn.prepareStatement(query);
-
+			// String query = "insert into user (id, name, email) values (?,?,?)";
+			// psmt = conn.prepareStatement(query);
+			
+			psmt = conn.prepareCall("{call InsertUser(?,?,?)}");
+			
 			System.out.println("추가할 사용자의 ID를 입력하세요.");
-			psmt.setInt(1, sc1.nextInt());
+			psmt.setString(1, sc1.nextLine());
 			System.out.println("추가할 사용자의 이름을 입력하세요.");
 			psmt.setString(2, sc2.nextLine());
 			System.out.println("추가할 사용자의 email을 입력하세요.");
@@ -35,13 +39,16 @@ public class DBConTest {
 	}
 
 	public static void read(Connection conn) throws SQLException {
-		psmt = conn.prepareStatement("select * from user");
+		// psmt = conn.prepareStatement("select * from user");
+		psmt = conn.prepareCall("{call SearchUser()}");
+		
 		rs = psmt.executeQuery();
 		while (rs.next()) {
-			int id = rs.getInt("id");
-			String name = rs.getString("name");
+			String uid = rs.getString("uid");
+			String uname = rs.getString("uname");
 			String email = rs.getString("email");
-			System.out.println("ID: " + id + ", 이름: " + name + ", email: " + email);
+			String rdate = rs.getString("rdate");
+			System.out.println("UID: " + uid + ", 이름: " + uname + ", email: " + email + " 가입날짜: " + rdate);
 		}
 	}
 
@@ -49,21 +56,27 @@ public class DBConTest {
 		try {
 			Scanner sc = new Scanner(System.in);
 
-			String query = "select * from user where id = ?";
-			psmt = conn.prepareStatement(query);
+			// String query = "select * from user where id = ?";
+			// psmt = conn.prepareStatement(query);
+			
+			psmt = conn.prepareCall("{call SearchUserOne(?)}");
 			System.out.println("검색할 사용자의 ID를 입력하세요.");
-			psmt.setInt(1, sc.nextInt());
+			psmt.setString(1, sc.nextLine());
 
 			rs = psmt.executeQuery();
 
+			
 			while (rs.next()) {
-				int id = rs.getInt("id");
-				String name = rs.getString("name");
+				String uid = rs.getString("uid");
+				String uname = rs.getString("uname");
 				String email = rs.getString("email");
-				System.out.println("ID: " + id + ", 이름: " + name + ", email: " + email);
+				String rdate = rs.getString("rdate");
+				System.out.println("UID: " + uid + ", 이름: " + uname + ", email: " + email + " 가입날짜: " + rdate);
 			}
+			
 		} catch (Exception e) {
 			System.out.println("존재하지 않는 사용자입니다.");
+			e.printStackTrace();
 		}
 	}
 
@@ -74,16 +87,16 @@ public class DBConTest {
 			Scanner sc2 = new Scanner(System.in);
 			Scanner sc3 = new Scanner(System.in);
 
-			String query = "update user set name = ?, email = ? where id = ?";
+			// String query = "update user set name = ?, email = ? where id = ?";
+			// psmt = conn.prepareStatement(query);
 
-			psmt = conn.prepareStatement(query);
-
+			psmt = conn.prepareCall("{call UpdateUser(?,?,?)}");
 			System.out.println("수정할 사용자의 ID를 입력하세요.");
-			psmt.setInt(3, sc1.nextInt());
+			psmt.setString(1, sc1.nextLine());
 			System.out.println("사용자의 이름을 입력하세요.");
-			psmt.setString(1, sc2.nextLine());
+			psmt.setString(2, sc2.nextLine());
 			System.out.println("사용자의 email을 입력하세요.");
-			psmt.setString(2, sc3.nextLine());
+			psmt.setString(3, sc3.nextLine());
 
 			psmt.executeUpdate();
 		} catch (Exception e) {
@@ -96,11 +109,13 @@ public class DBConTest {
 		try {
 			Scanner sc = new Scanner(System.in);
 
-			String query = "delete from user where id = ?";
-			psmt = conn.prepareStatement(query);
-
+			// String query = "delete from user where id = ?";
+			// psmt = conn.prepareStatement(query);
+			
+			psmt = conn.prepareCall("{call DeleteUser(?)}");
+			
 			System.out.println("삭제할 사용자의 ID를 입력하세요.");
-			psmt.setInt(1, sc.nextInt());
+			psmt.setString(1, sc.nextLine());
 
 			psmt.executeUpdate();
 		} catch (Exception e) {
@@ -119,12 +134,21 @@ public class DBConTest {
 		}
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/db0321", "root", "1234");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/pnusw45", "root", "1234");
 
 			while (true) {
 				Scanner sc = new Scanner(System.in);
-				System.out.println("1: Create, 2: Read(전체), 3: Read(부분), 4: Update, 5: Delete, 6: exit");
-
+				System.out.println();
+				System.out.println("CRUD 선택");
+				System.out.println("1: Create(Insert)");
+				System.out.println("2: Read(Search) (전체)");
+				System.out.println("3: Read(Search) (1명)");
+				System.out.println("4: Update");
+				System.out.println("5: Delete");
+				System.out.println("6: exit");
+				System.out.print("=".repeat(100));
+				System.out.println();
+				System.out.print("입력 : ");
 				int num = sc.nextInt();
 				
 				switch (num) {
@@ -144,9 +168,12 @@ public class DBConTest {
 					delete(conn);
 					break;
 				case 6:
+					if (rs != null)
+						rs.close();
 					if (psmt != null)
 						psmt.close();
 					conn.close();
+					
 					System.out.println("종료되었습니다.");
 					return;
 				}
