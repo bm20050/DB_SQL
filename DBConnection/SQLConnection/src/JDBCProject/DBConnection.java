@@ -48,7 +48,7 @@ public class DBConnection {
 			String uname = rs.getString("uname");
 			String email = rs.getString("email");
 			String rdate = rs.getString("rdate");
-			System.out.println("UID: " + uid + ", 이름: " + uname + ", email: " + email + " 가입날짜: " + rdate);
+			System.out.println("UID: " + uid + ", 이름: " + uname + ", email: " + email + ", 가입날짜: " + rdate);
 		}
 	}
 
@@ -71,7 +71,7 @@ public class DBConnection {
 				String uname = rs.getString("uname");
 				String email = rs.getString("email");
 				String rdate = rs.getString("rdate");
-				System.out.println("UID: " + uid + ", 이름: " + uname + ", email: " + email + " 가입날짜: " + rdate);
+				System.out.println("UID: " + uid + ", 이름: " + uname + ", email: " + email + ", 가입날짜: " + rdate);
 			}
 			
 		} catch (Exception e) {
